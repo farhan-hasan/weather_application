@@ -79,7 +79,8 @@ class _AudioPlayerWidgetState extends State<AudioPlayerWidget> {
     return StreamBuilder<int?>(
         stream: _player.currentIndexStream,
         builder: (context, snapshot) {
-          var img = "";
+          var img =
+              "https://img.freepik.com/premium-photo/white-wall-with-white-background-that-says-word-it_994023-371201.jpg";
           if (snapshot.hasData) {
             img = _playlist.sequence[snapshot.data!].tag.artUri.toString();
           }
