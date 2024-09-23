@@ -28,10 +28,10 @@ class WeatherDetailContainer extends StatelessWidget {
       child: Wrap(
         children: [
           CircleAvatar(
-            backgroundColor: Colors.white,
+            backgroundColor: Colors.transparent,
             child: Icon(
               icon,
-              color: Colors.black,
+              color: Colors.white,
             ),
           ),
           const SizedBox(

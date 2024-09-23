@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:networking_practice/feature/audio_player/view/audio_player_screen.dart';
 import 'package:networking_practice/feature/audio_player/view/audio_player_widget.dart';
 import 'package:networking_practice/feature/country/controllers/country_controller.dart';
 import 'package:networking_practice/feature/country/controllers/country_generic.dart';
@@ -118,11 +117,11 @@ class _WeatherScreenState extends ConsumerState<WeatherScreen> {
             ),
             IconButton(
               onPressed: () async {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => const AudioPlayerScreen()),
-                );
+                // Navigator.push(
+                //   context,
+                //   MaterialPageRoute(
+                //       builder: (context) => const AudioPlayerScreen()),
+                // );
               },
               icon: Icon(
                 Icons.audiotrack_sharp,
@@ -182,7 +181,7 @@ class _WeatherScreenState extends ConsumerState<WeatherScreen> {
                           decoration: BoxDecoration(
                               color: selectedTab == name
                                   ? AppThemes.lightColorScheme.primary
-                                  : Colors.white,
+                                  : AppThemes.lightColorScheme.secondary,
                               borderRadius:
                                   BorderRadius.all(Radius.circular(20))),
                           height: 50,
@@ -190,7 +189,8 @@ class _WeatherScreenState extends ConsumerState<WeatherScreen> {
                           child: Center(
                             child: Text(
                               name,
-                              style: TextStyle(fontSize: 16),
+                              style:
+                                  TextStyle(fontSize: 16, color: Colors.white),
                             ),
                           ),
                         ),
@@ -206,10 +206,21 @@ class _WeatherScreenState extends ConsumerState<WeatherScreen> {
   Widget buildTabs(String name, WeatherGeneric weatherController) {
     if (name == "Today") {
       return buildTodayTab(name, weatherController);
-    } else if (name == "Tomorrow")
-      return SafeArea(child: Center(child: Text("Tomorrow")));
-    else
-      return SafeArea(child: Center(child: Text("10-Days")));
+    } else if (name == "Tomorrow") {
+      return const SafeArea(
+          child: Center(
+              child: Text(
+        "Tomorrow",
+        style: TextStyle(color: Colors.black),
+      )));
+    } else {
+      return const SafeArea(
+          child: Center(
+              child: Text(
+        "10-Days",
+        style: TextStyle(color: Colors.black),
+      )));
+    }
   }
 
   Widget buildTodayTab(String name, WeatherGeneric weatherController) {

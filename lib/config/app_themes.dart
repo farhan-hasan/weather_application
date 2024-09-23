@@ -7,16 +7,16 @@ class AppThemes {
   static final lightFocusColor = Colors.black.withOpacity(0.12);
 
   static var lightColorScheme = ColorScheme(
-    primary: Colors.deepPurple[200] ?? Colors.white,
-    onPrimary: Colors.black,
-    secondary: const Color(0xFFEFF3F3),
+    primary: Colors.deepPurple[300] ?? Colors.white,
+    onPrimary: Colors.white,
+    secondary: Colors.deepPurple[200] ?? Colors.white,
     onSecondary: Colors.black,
     error: Colors.redAccent,
     onError: Colors.white,
     background: const Color(0xffebe5ff),
     onBackground: Colors.black,
-    surface: Colors.deepPurple[200] ?? Colors.white,
-    onSurface: Colors.black,
+    surface: Colors.deepPurple[300] ?? Colors.white,
+    onSurface: Colors.white,
     brightness: Brightness.light,
   );
 
