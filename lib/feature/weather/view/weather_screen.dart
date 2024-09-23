@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:networking_practice/feature/audio_player/view/audio_player_screen.dart';
+import 'package:networking_practice/feature/audio_player/view/audio_player_widget.dart';
 import 'package:networking_practice/feature/country/controllers/country_controller.dart';
 import 'package:networking_practice/feature/country/controllers/country_generic.dart';
 import 'package:networking_practice/feature/weather/controllers/weather_controller.dart';
@@ -109,6 +111,21 @@ class _WeatherScreenState extends ConsumerState<WeatherScreen> {
               },
               icon: Icon(
                 Icons.search,
+                color: weatherController.showCollapsedView == true
+                    ? Colors.black
+                    : Colors.white,
+              ),
+            ),
+            IconButton(
+              onPressed: () async {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => const AudioPlayerScreen()),
+                );
+              },
+              icon: Icon(
+                Icons.audiotrack_sharp,
                 color: weatherController.showCollapsedView == true
                     ? Colors.black
                     : Colors.white,
@@ -247,6 +264,7 @@ class _WeatherScreenState extends ConsumerState<WeatherScreen> {
                             "${weatherController.currentWeatherData?.current?.uv ?? "-"}",
                         icon: Icons.sunny,
                       ),
+                      AudioPlayerWidget()
                     ],
                   ),
                 ),
@@ -395,7 +413,7 @@ class _WeatherScreenState extends ConsumerState<WeatherScreen> {
                                     height: 10,
                                   ),
                                   Text(
-                                    maxLines: 2,
+                                    maxLines: 3,
                                     textAlign: TextAlign.center,
                                     weatherController.currentWeatherData
                                             ?.current?.condition?.text ??

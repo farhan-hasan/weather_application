@@ -6,22 +6,22 @@ class AppThemes {
 
   static final lightFocusColor = Colors.black.withOpacity(0.12);
 
-  static const lightColorScheme = ColorScheme(
-    primary: Color(0xffe3b5f6),
-    onPrimary: Colors.white,
-    secondary: Color(0xFFEFF3F3),
+  static var lightColorScheme = ColorScheme(
+    primary: Colors.deepPurple[200] ?? Colors.white,
+    onPrimary: Colors.black,
+    secondary: const Color(0xFFEFF3F3),
     onSecondary: Colors.black,
     error: Colors.redAccent,
     onError: Colors.white,
-    background: Color(0xffebe5ff),
+    background: const Color(0xffebe5ff),
     onBackground: Colors.black,
-    surface: Color(0xffe3b5f6),
+    surface: Colors.deepPurple[200] ?? Colors.white,
     onSurface: Colors.black,
     brightness: Brightness.light,
   );
 
   static const AppBarTheme lightAppBarTheme = AppBarTheme(
-      backgroundColor: Color(0xFFe0b6ff), foregroundColor: Colors.white);
+      backgroundColor: Color(0xffebe5ff), foregroundColor: Colors.white);
 
   static ThemeData themeData(
       ColorScheme colorscheme, Color focusColor, AppBarTheme appBarTheme) {

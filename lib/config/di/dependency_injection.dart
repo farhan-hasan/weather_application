@@ -17,12 +17,12 @@ Future<void> setupService() async {
     return sembastdbConfig;
   });
 
-  // sl.registerSingletonAsync<CityDao>(() async {
-  //   log("cityDao init");
-  //   final dao = CityDao();
-  //   return dao;
-  // }, dependsOn: [SembestDbConfig]);
+  sl.registerSingletonAsync<CityDao>(() async {
+    log("cityDao init");
+    final dao = CityDao();
+    return dao;
+  }, dependsOn: [SembestDbConfig]);
 
-  sl.registerLazySingleton(() => CityDao());
+  //sl.registerLazySingleton(() => CityDao());
   await sl.allReady();
 }
