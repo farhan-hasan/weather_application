@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:networking_practice/feature/audio_player/view/audio_player_widget.dart';
+import 'package:networking_practice/feature/audio_player/widgets/audio_player_widget.dart';
 import 'package:networking_practice/feature/country/controllers/country_controller.dart';
 import 'package:networking_practice/feature/country/controllers/country_generic.dart';
+import 'package:networking_practice/feature/video_player/widgets/video_player_widget.dart';
 import 'package:networking_practice/feature/weather/controllers/weather_controller.dart';
 import 'package:networking_practice/feature/weather/controllers/weather_generic.dart';
 
@@ -275,7 +276,8 @@ class _WeatherScreenState extends ConsumerState<WeatherScreen> {
                             "${weatherController.currentWeatherData?.current?.uv ?? "-"}",
                         icon: Icons.sunny,
                       ),
-                      AudioPlayerWidget()
+                      AudioPlayerWidget(),
+                      VideoPlayerWidget(),
                     ],
                   ),
                 ),
@@ -379,7 +381,7 @@ class _WeatherScreenState extends ConsumerState<WeatherScreen> {
                           alignment: Alignment.bottomLeft,
                           child: Container(
                             //color: Colors.amber.withOpacity(0.5),
-                            child: Row(
+                            child: Wrap(
                               children: [
                                 Text(
                                   "${weatherController.currentWeatherData?.current?.tempC.toString() ?? "0"}°",

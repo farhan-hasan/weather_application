@@ -50,13 +50,14 @@ class WeatherDetailContainer extends StatelessWidget {
               )
             ],
           ),
-          Align(
-            alignment: Alignment.bottomRight,
-            child: Text(
-              trailing,
-              style: const TextStyle(fontWeight: FontWeight.w500),
-            ),
-          )
+          // Align(
+          //   alignment: Alignment.bottomRight,
+          //   heightFactor: .6,
+          //   child: Text(
+          //     trailing,
+          //     style: const TextStyle(fontWeight: FontWeight.w500),
+          //   ),
+          // )
         ],
       ),
     );

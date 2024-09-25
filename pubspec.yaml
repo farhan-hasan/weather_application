@@ -49,6 +49,9 @@ dependencies:
   just_audio_background: ^0.0.1-beta.13
   async: ^2.11.0
   rxdart: ^0.28.0
+  video_player: ^2.9.1
+  chewie: ^1.8.5
+  screen_brightness: ^1.0.1
 
 dev_dependencies:
   flutter_test:

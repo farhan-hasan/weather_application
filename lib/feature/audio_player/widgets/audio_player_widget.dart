@@ -164,8 +164,8 @@ class _AudioPlayerWidgetState extends State<AudioPlayerWidget> {
                         })
                   ],
                 ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                Wrap(
+                  alignment: WrapAlignment.spaceBetween,
                   children: [
                     IconButton(
                       icon: const Icon(
