@@ -1,4 +1,3 @@
-import 'package:bot_toast/bot_toast.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:networking_practice/config/network/api_manager_dio.dart';
 import 'package:networking_practice/config/network/http/dio_client.dart';
@@ -24,6 +23,22 @@ class WeatherController extends StateNotifier<WeatherGeneric> {
     state = state.update(showCollapsedView: isCollapsed);
   }
 
+  setSelectedTab(String tab) {
+    int index = 0;
+    print("Tab: $tab");
+    if (tab == "Today") {
+      index = 0;
+    } else if (tab == "Tomorrow") {
+      print("CHECK!!!!!!!!");
+      index = 1;
+    } else if (tab == "10-Days") {
+      index = 2;
+    }
+    print("Index: $index");
+
+    state = state.update(selectedTab: tab);
+  }
+
   toggleSearchButton(bool isSearchEnabled) {
     print(isSearchEnabled.toString());
     state = state.update(isSearchEnabled: isSearchEnabled);
@@ -31,21 +46,21 @@ class WeatherController extends StateNotifier<WeatherGeneric> {
 
   fetchCurrentWeather({required String currentLocation}) async {
     WeatherData? weatherData;
-    BotToast.showLoading();
+    //BotToast.showLoading();
     state = state.update(isLoading: true);
 
     Object result =
         await weatherRepository.getCurrentWeather(location: currentLocation);
 
-    BotToast.closeAllLoading();
+    //BotToast.closeAllLoading();
 
     if (result is WeatherData) {
       weatherData = result;
     } else {
-      BotToast.showText(text: "Something went wrong");
+      print("Something went wrong");
+      //BotToast.showText(text: "Something went wrong");
     }
 
     state = state.update(isLoading: false, currentWeatherData: weatherData);
   }
 }
-

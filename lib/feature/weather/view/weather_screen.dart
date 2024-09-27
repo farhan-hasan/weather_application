@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:networking_practice/config/notification/push_notification/push_notification_handler.dart';
 import 'package:networking_practice/feature/audio_player/widgets/audio_player_widget.dart';
+import 'package:networking_practice/feature/authentication/controllers/auth_controller.dart';
+import 'package:networking_practice/feature/authentication/controllers/auth_generic.dart';
 import 'package:networking_practice/feature/country/controllers/country_controller.dart';
 import 'package:networking_practice/feature/country/controllers/country_generic.dart';
 import 'package:networking_practice/feature/video_player/widgets/video_player_widget.dart';
@@ -18,21 +22,67 @@ class WeatherScreen extends ConsumerStatefulWidget {
   ConsumerState<WeatherScreen> createState() => _WeatherScreenState();
 }
 
-class _WeatherScreenState extends ConsumerState<WeatherScreen> {
+class _WeatherScreenState extends ConsumerState<WeatherScreen>
+    with WidgetsBindingObserver, SingleTickerProviderStateMixin {
   final List<String> _tabs = ['Today', 'Tomorrow', '10-Days'];
   final TextEditingController searchTEC = TextEditingController();
   List<String> cityList = [];
   String selectedTab = "Today";
+  late Map<String, dynamic> extraString;
+  Map<String, dynamic> map = <String, dynamic>{};
+  String url =
+      "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4";
+  TabController? _tabController;
 
   @override
   void initState() {
     super.initState();
+    _tabController = TabController(length: 3, vsync: this, initialIndex: 0);
+    WidgetsBinding.instance.addObserver(this);
     WidgetsBinding.instance.addPostFrameCallback((t) {
+      PushNotificationHandler.setupInteractedMessage();
       ref
           .read(weatherProvider.notifier)
           .fetchCurrentWeather(currentLocation: "Sylhet");
       initCityData();
     });
+    //init();
+  }
+
+  init() {
+    extraString =
+        (GoRouterState.of(context).extra ?? map) as Map<String, dynamic>;
+    print("Extra String: ${extraString.toString()}");
+    if (extraString.isNotEmpty) {
+      url = extraString["url"];
+      String tab = extraString["tab"];
+      int index = 0;
+      if (tab == "Today") {
+        index = 0;
+      } else if (tab == "Tomorrow") {
+        print("CHECK!!!!!!!!");
+        index = 1;
+      } else if (tab == "10-Days") {
+        index = 2;
+      }
+      selectedTab = _tabs[index];
+      _tabController?.animateTo(index);
+    }
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    print("App state : $state");
+    super.didChangeAppLifecycleState(state);
+    if (AppLifecycleState.resumed == state) {
+      init();
+    }
   }
 
   void initCityData() async {
@@ -46,38 +96,58 @@ class _WeatherScreenState extends ConsumerState<WeatherScreen> {
     }
   }
 
-  @override
-  void dispose() {
-    super.dispose();
+  int getTab() {
+    String tab = "";
+    if (tab == "Today") return 0;
+    if (tab == "Tomorrow") return 1;
+    if (tab == "10-Days") return 2;
+    return 0;
   }
 
   @override
   Widget build(BuildContext context) {
     final weatherController = ref.watch(weatherProvider);
     final countryController = ref.watch(countryProvider);
+    final authController = ref.watch(authProvider);
+
     //print(countryController.cityList);
     return DefaultTabController(
-      initialIndex: 0,
       length: _tabs.length,
       child: Scaffold(
         //backgroundColor: Colors.white,
         body: NestedScrollView(
           headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
             return buildSliverAppbarSection(
-                context, weatherController, countryController);
+                context, weatherController, countryController, authController);
           },
           body: TabBarView(
-            children: _tabs.map((String name) {
-              return buildTabs(name, weatherController);
-            }).toList(),
+            controller: _tabController,
+            children: [
+              buildTodayTab("Today", weatherController),
+              Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  VideoPlayerWidget(url: url),
+                ],
+              ),
+              Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  AudioPlayerWidget(),
+                ],
+              ),
+            ],
           ),
         ),
       ),
     );
   }
 
-  List<Widget> buildSliverAppbarSection(BuildContext context,
-      WeatherGeneric weatherController, CountryGeneric countryController) {
+  List<Widget> buildSliverAppbarSection(
+      BuildContext context,
+      WeatherGeneric weatherController,
+      CountryGeneric countryController,
+      AuthGeneric authController) {
     return <Widget>[
       SliverOverlapAbsorber(
         handle: NestedScrollView.sliverOverlapAbsorberHandleFor(context),
@@ -118,14 +188,48 @@ class _WeatherScreenState extends ConsumerState<WeatherScreen> {
             ),
             IconButton(
               onPressed: () async {
-                // Navigator.push(
-                //   context,
-                //   MaterialPageRoute(
-                //       builder: (context) => const AudioPlayerScreen()),
-                // );
+                showDialog(
+                    context: context,
+                    builder: (context) {
+                      return AlertDialog(
+                        title: const Text('Logout'),
+                        content: const Text(
+                          'Are you sure?',
+                        ),
+                        actions: <Widget>[
+                          TextButton(
+                            child: const Text(
+                              'No',
+                              style: TextStyle(color: Colors.white),
+                            ),
+                            onPressed: () {
+                              //Navigator.of(context).pop();
+                              GoRouter.of(context).pop();
+                            },
+                          ),
+                          TextButton(
+                            child: const Text(
+                              'Yes',
+                              style: TextStyle(color: Colors.white),
+                            ),
+                            onPressed: () async {
+                              await ref.read(authProvider.notifier).logout();
+                              if (ref.read(authProvider).isSuccess) {
+                                GoRouter.of(context).goNamed("login");
+                              } else {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                      content: Text('Logout failed')),
+                                );
+                              }
+                            },
+                          ),
+                        ],
+                      );
+                    });
               },
               icon: Icon(
-                Icons.audiotrack_sharp,
+                Icons.logout,
                 color: weatherController.showCollapsedView == true
                     ? Colors.black
                     : Colors.white,
@@ -169,8 +273,10 @@ class _WeatherScreenState extends ConsumerState<WeatherScreen> {
             decoration:
                 BoxDecoration(color: AppThemes.lightColorScheme.background),
             child: TabBar(
+              controller: _tabController,
               onTap: (value) {
                 selectedTab = _tabs[value];
+                _tabController?.index = value;
               },
               dividerColor: Colors.transparent,
               indicatorColor: Colors.transparent,
@@ -208,12 +314,7 @@ class _WeatherScreenState extends ConsumerState<WeatherScreen> {
     if (name == "Today") {
       return buildTodayTab(name, weatherController);
     } else if (name == "Tomorrow") {
-      return const SafeArea(
-          child: Center(
-              child: Text(
-        "Tomorrow",
-        style: TextStyle(color: Colors.black),
-      )));
+      return buildTomorrowTab(name, url);
     } else {
       return const SafeArea(
           child: Center(
@@ -276,11 +377,34 @@ class _WeatherScreenState extends ConsumerState<WeatherScreen> {
                             "${weatherController.currentWeatherData?.current?.uv ?? "-"}",
                         icon: Icons.sunny,
                       ),
-                      AudioPlayerWidget(),
-                      VideoPlayerWidget(),
                     ],
                   ),
                 ),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+
+  Widget buildTomorrowTab(String name, String url) {
+    return SafeArea(
+      top: false,
+      bottom: false,
+      child: Builder(
+        builder: (BuildContext context) {
+          return CustomScrollView(
+            key: PageStorageKey<String>(name),
+            slivers: <Widget>[
+              SliverOverlapInjector(
+                handle:
+                    NestedScrollView.sliverOverlapAbsorberHandleFor(context),
+              ),
+              SliverFillRemaining(
+                child: Padding(
+                    padding: const EdgeInsets.all(18.0),
+                    child: VideoPlayerWidget(url: url)),
               ),
             ],
           );

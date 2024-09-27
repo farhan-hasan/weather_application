@@ -1,5 +1,6 @@
 import 'package:chewie/chewie.dart';
 import 'package:flutter/material.dart';
+import 'package:networking_practice/feature/video_player/widgets/option_widget.dart';
 import 'package:screen_brightness/screen_brightness.dart';
 import 'package:video_player/video_player.dart';
 
@@ -208,7 +209,7 @@ class _ChewieCustomControlsState extends State<ChewieCustomControls> {
                       },
                     );
                   },
-                  icon: Icon(Icons.more_vert))),
+                  icon: const Icon(Icons.more_vert))),
           Column(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
@@ -249,7 +250,7 @@ class _ChewieCustomControlsState extends State<ChewieCustomControls> {
                         //color: Colors.amber.withOpacity(0.5),
                         child: IconButton(
                             onPressed: () {},
-                            icon: Icon(
+                            icon: const Icon(
                               Icons.lock_open,
                               color: Colors.white,
                             )),
@@ -287,7 +288,7 @@ class _ChewieCustomControlsState extends State<ChewieCustomControls> {
                                 }),
                             IconButton(
                                 onPressed: () {},
-                                icon: Icon(
+                                icon: const Icon(
                                   Icons.skip_next,
                                   color: Colors.white,
                                 )),
@@ -303,7 +304,7 @@ class _ChewieCustomControlsState extends State<ChewieCustomControls> {
                           children: [
                             IconButton(
                                 onPressed: () {},
-                                icon: Icon(
+                                icon: const Icon(
                                   Icons.fit_screen,
                                   color: Colors.white,
                                 )),
@@ -318,34 +319,10 @@ class _ChewieCustomControlsState extends State<ChewieCustomControls> {
           ),
           GestureDetector(
             onVerticalDragUpdate: (dt) async {
-              print(dt.localPosition.dx);
-              var width = MediaQuery.of(context).size.width;
-              if (dt.localPosition.dx < width / 2) {
-                print("left");
-                print(dt.delta.dy);
-                _chewieController.setVolume(dt.delta.dy * -1);
-              } else {
-                print("right");
-                double brightness = await ScreenBrightness().system;
-                print(brightness);
-                var y = dt.delta.dy;
-                if (y != 0) {
-                  double bright = await ScreenBrightness.instance.current;
-                  bright = bright + (y <= 0 ? 0.05 : -0.05);
-                  if (bright >= 0 && bright <= 1) {
-                    await ScreenBrightness.instance.setScreenBrightness(bright);
-                  }
-                }
-              }
+              await controlSoundBrightness(dt, context);
             },
             onHorizontalDragUpdate: (dt) {
-              double v = dt.delta.dx;
-              var time = _chewieController
-                  .videoPlayerController.value.position.inSeconds
-                  .toDouble();
-              time += (0.5 * v);
-              _chewieController.videoPlayerController
-                  .seekTo(Duration(seconds: time.toInt()));
+              dragControlSeekBar(dt);
             },
             onHorizontalDragEnd: (dt) {},
             onDoubleTapDown: (TapDownDetails details) => doubleTapSeek(details),
@@ -354,39 +331,36 @@ class _ChewieCustomControlsState extends State<ChewieCustomControls> {
       ),
     );
   }
-}
 
-class optionWidget extends StatelessWidget {
-  optionWidget({super.key, required this.title, required this.icon});
+  void dragControlSeekBar(DragUpdateDetails dt) {
+    double v = dt.delta.dx;
+    var time = _chewieController.videoPlayerController.value.position.inSeconds
+        .toDouble();
+    time += (0.5 * v);
+    _chewieController.videoPlayerController
+        .seekTo(Duration(seconds: time.toInt()));
+  }
 
-  String title;
-  IconData icon;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 90,
-      height: 100,
-      child: Center(
-        child: Column(
-          children: [
-            InkWell(
-              child: CircleAvatar(
-                radius: 30,
-                backgroundColor: Colors.black.withOpacity(0.5),
-                child: Icon(icon),
-              ),
-            ),
-            Center(
-              child: Text(
-                title,
-                textAlign: TextAlign.center,
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
-            )
-          ],
-        ),
-      ),
-    );
+  Future<void> controlSoundBrightness(
+      DragUpdateDetails dt, BuildContext context) async {
+    print(dt.localPosition.dx);
+    var width = MediaQuery.of(context).size.width;
+    if (dt.localPosition.dx < width / 2) {
+      print("left");
+      print(dt.delta.dy);
+      _chewieController.setVolume(dt.delta.dy * -1);
+    } else {
+      print("right");
+      double brightness = await ScreenBrightness().system;
+      print(brightness);
+      var y = dt.delta.dy;
+      if (y != 0) {
+        double bright = await ScreenBrightness.instance.current;
+        bright = bright + (y <= 0 ? 0.05 : -0.05);
+        if (bright >= 0 && bright <= 1) {
+          await ScreenBrightness.instance.setScreenBrightness(bright);
+        }
+      }
+    }
   }
 }

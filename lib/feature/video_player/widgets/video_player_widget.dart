@@ -1,17 +1,19 @@
 import 'package:chewie/chewie.dart';
 import 'package:flutter/material.dart';
-import 'package:networking_practice/config/app_themes.dart';
 import 'package:networking_practice/feature/video_player/widgets/chewie_custom_controls.dart';
 import 'package:video_player/video_player.dart';
 
 class VideoPlayerWidget extends StatefulWidget {
-  const VideoPlayerWidget({super.key});
+  VideoPlayerWidget({super.key, required this.url});
+
+  String url;
 
   @override
   State<VideoPlayerWidget> createState() => _VideoPlayerWidgetState();
 }
 
-class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
+class _VideoPlayerWidgetState extends State<VideoPlayerWidget>
+    with WidgetsBindingObserver {
   late VideoPlayerController _controller;
   late ChewieController _chewieController;
   ValueNotifier<bool> isPlaying = ValueNotifier<bool>(false);
@@ -19,13 +21,18 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
 
   @override
   void initState() {
-    _init();
+    WidgetsBinding.instance.addObserver(this);
     super.initState();
+    print("------------------------->>>>>>>>>>>Inside videoplayer initstate");
+    print("${widget.url}");
+    _init();
   }
 
   _init() async {
-    _controller = VideoPlayerController.networkUrl(Uri.parse(
-        'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4'));
+    try {
+      await _controller.dispose();
+    } catch (e) {}
+    _controller = VideoPlayerController.networkUrl(Uri.parse(widget.url));
     await _controller.initialize();
     _chewieController = ChewieController(
         hideControlsTimer: const Duration(seconds: 1),
@@ -42,6 +49,7 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
   void dispose() {
     super.dispose();
     _controller.dispose();
+    WidgetsBinding.instance.removeObserver(this);
   }
 
   doubleTapSeek(TapDownDetails details) {
@@ -56,16 +64,30 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    _controller.addListener(() {});
-    if (_controller.value.isCompleted) {
-      _controller.seekTo(Duration.zero);
-      isPlaying.value = false;
+  void didUpdateWidget(covariant VideoPlayerWidget oldWidget) {
+    // TODO: implement didUpdateWidget
+    if (oldWidget.url != widget.url) {
+      _init();
     }
+    super.didUpdateWidget(oldWidget);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    // _controller.addListener(() async {
+    //   if (_controller.dataSource != widget.url) {
+    //     _controller = VideoPlayerController.networkUrl(Uri.parse(widget.url));
+    //     await _controller.initialize();
+    //   }
+    // });
+    // if (_controller.value.isCompleted) {
+    //   _controller.seekTo(Duration.zero);
+    //   isPlaying.value = false;
+    // }
 
     return Container(
       decoration: BoxDecoration(
-          color: AppThemes.lightColorScheme.primary,
+          //color: AppThemes.lightColorScheme.primary,
           //color: Colors.transparent,
           borderRadius: BorderRadius.circular(20)),
       child: Column(
@@ -74,58 +96,8 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
             child: _controller.value.isInitialized
                 ? AspectRatio(
                     aspectRatio: _controller.value.aspectRatio,
-                    child: Stack(
-                      alignment: Alignment.bottomCenter,
-                      children: [
-                        Chewie(
-                          controller: _chewieController,
-                        ),
-                        // Positioned(
-                        //   bottom: 0,
-                        //   child: Row(
-                        //     children: [
-                        //       IconButton(
-                        //           onPressed: () {},
-                        //           icon: const Icon(Icons.fast_rewind)),
-                        //       _controller.value.isBuffering
-                        //           ? const CircularProgressIndicator(
-                        //               color: Colors.white,
-                        //             )
-                        //           : IconButton(
-                        //               onPressed: () {
-                        //                 if (_controller.value.isPlaying) {
-                        //                   _controller.pause();
-                        //                   isPlaying.value = false;
-                        //                 } else {
-                        //                   _controller.play();
-                        //                   isPlaying.value = true;
-                        //                 }
-                        //               },
-                        //               icon: Icon(
-                        //                 _controller.value.isPlaying
-                        //                     ? Icons.pause_circle
-                        //                     : Icons.play_circle,
-                        //                 size: 50,
-                        //               )),
-                        //       IconButton(
-                        //           onPressed: () {},
-                        //           icon: const Icon(Icons.fast_forward)),
-                        //     ],
-                        //   ),
-                        // ),
-                        // SizedBox(
-                        //   height: 16,
-                        //   child: VideoProgressIndicator(
-                        //     padding: EdgeInsets.all(5),
-                        //     _controller,
-                        //     allowScrubbing: true,
-                        //     colors: VideoProgressColors(
-                        //       playedColor: AppThemes.lightColorScheme.primary,
-                        //       backgroundColor: Colors.white,
-                        //     ),
-                        //   ),
-                        // )
-                      ],
+                    child: Chewie(
+                      controller: _chewieController,
                     ),
                   )
                 : const Center(child: CircularProgressIndicator()),

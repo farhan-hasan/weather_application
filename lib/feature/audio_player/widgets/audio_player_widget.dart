@@ -166,6 +166,7 @@ class _AudioPlayerWidgetState extends State<AudioPlayerWidget> {
                 ),
                 Wrap(
                   alignment: WrapAlignment.spaceBetween,
+                  crossAxisAlignment: WrapCrossAlignment.center,
                   children: [
                     IconButton(
                       icon: const Icon(
@@ -210,7 +211,7 @@ class _AudioPlayerWidgetState extends State<AudioPlayerWidget> {
                                       : playing == true
                                           ? Icons.pause_circle
                                           : Icons.play_circle,
-                                  size: 100,
+                                  size: 70,
                                   color: Colors.white,
                                 ),
                                 onPressed: () async {
